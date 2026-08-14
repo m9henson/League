@@ -13,7 +13,7 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
 .statusbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:4px 2px 10px;color:var(--muted);font-size:.86rem}.save{display:flex;align-items:center;gap:6px}.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .table-wrap{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:auto;max-height:calc(100vh - 145px);box-shadow:0 1px 2px rgba(0,0,0,.03)}table{border-collapse:separate;border-spacing:0;min-width:max-content;width:100%}th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0;text-align:center;background:#fff}thead th{position:sticky;top:0;z-index:5;background:#eef1ef;height:48px;font-size:.83rem;color:#3f4944;font-weight:750}tbody tr:last-child td{border-bottom:0}th:last-child,td:last-child{border-right:0}
 .team{position:sticky;left:0;z-index:3;width:var(--team-w);min-width:var(--team-w);max-width:var(--team-w);text-align:left!important;padding:0 10px!important;font-weight:650;background:#fff!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.avg{position:sticky;left:var(--team-w);z-index:3;width:var(--avg-w);min-width:var(--avg-w);font-weight:800;background:#fbfcfb!important}.solo{position:sticky;left:calc(var(--team-w) + var(--avg-w));z-index:3;width:var(--solo-w);min-width:var(--solo-w);font-weight:800;background:#f7faf8!important}.score-col{width:var(--score-w);min-width:var(--score-w)}thead .team,thead .avg,thead .solo{z-index:8;background:#eef1ef!important}.current-head{background:var(--accent)!important;color:#fff!important}.current-cell{background:var(--accent2)!important}
-.score{width:58px;height:42px;border:0;background:transparent;text-align:center;font-size:1rem;font-weight:650;color:var(--text);outline:none;border-radius:8px;margin:3px}.score:focus{box-shadow:inset 0 0 0 2px var(--accent);background:#fff}.current-cell .score{font-size:1.08rem;font-weight:800}.rank{display:inline-flex;min-width:24px;justify-content:center;color:var(--muted);font-size:.78rem;margin-right:5px}.empty{color:#a6afaa;font-weight:500}.avg small,.solo small{display:block;font-weight:500;color:var(--muted);font-size:.66rem}
+.score{width:58px;height:42px;border:0;background:transparent;text-align:center;font-size:1rem;font-weight:650;color:var(--text);outline:none;border-radius:8px;margin:3px}.score:focus{box-shadow:inset 0 0 0 2px var(--accent);background:#fff}.score[readonly]{color:var(--text);opacity:.72;cursor:default}.score[readonly]:focus{box-shadow:none;background:transparent}.current-cell .score{font-size:1.08rem;font-weight:800}.rank{display:inline-flex;min-width:24px;justify-content:center;color:var(--muted);font-size:.78rem;margin-right:5px}.empty{color:#a6afaa;font-weight:500}.avg small,.solo small{display:block;font-weight:500;color:var(--muted);font-size:.66rem}
 .sheet-note{padding:9px 12px;background:#fff9e9;border:1px solid #eadfbf;border-radius:10px;color:#6d5a20;font-size:.86rem;margin-bottom:10px;display:none}.sheet-note.show{display:block}
 .dialog-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.dialog-backdrop.show{display:flex}.dialog{width:min(430px,100%);background:#fff;border-radius:16px;padding:18px}.dialog h2{margin:0 0 12px;font-size:1.15rem}.dialog label{display:block;font-weight:650;margin-bottom:6px}.dialog input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:1rem}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.danger{color:var(--danger)}
 @media(max-width:620px){:root{--team-w:150px;--avg-w:62px;--solo-w:72px;--score-w:66px}.app{padding:8px}.title h1{font-size:1.16rem}.title p{font-size:.78rem}.actions{width:100%}.actions button{flex:1;padding:9px 8px;font-size:.86rem}.statusbar{font-size:.76rem}.table-wrap{max-height:calc(100vh - 160px);border-radius:11px}.team{padding:0 8px!important;font-size:.88rem}.avg,.solo{font-size:.86rem}.score{width:54px;height:42px}.rank{display:none}}
@@ -28,12 +28,13 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
       <p>Type a score and press Enter — teams with the most rounds played stay at the top automatically.</p>
     </div>
     <div class="actions">
+      <button id="authBtn" type="button">Admin Sign In</button>
       <button id="sortBtn" type="button">Rank by Avg</button>
       <button id="addTeamBtn" type="button">+ Team</button>
       <button id="addWeekBtn" class="primary" type="button">+ Week</button>
     </div>
   </div>
-  <div id="deviceNote" class="sheet-note">Scores are currently saved on this device/browser. This is perfect for testing; cloud sync can be connected before you publish it for league use.</div>
+  <div id="deviceNote" class="sheet-note">Firebase is connected. Finish Google sign-in and add your admin UID to enable editing and cloud sync.</div>
   <div class="statusbar">
     <span id="summary"></span>
     <span class="save"><span class="dot"></span><span id="saveText">Saved</span></span>
@@ -55,120 +56,117 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+
+// ===== FIREBASE SETUP =====
+// Replace these placeholder values with the config Firebase gives you for your Web app.
+const firebaseConfig = {
+  apiKey: "AIzaSyB8RB3HaX3ontFUZ5Xim_bJirbVIDJBT3s",
+  authDomain: "league-b6d74.firebaseapp.com",
+  projectId: "league-b6d74",
+  storageBucket: "league-b6d74.firebasestorage.app",
+  messagingSenderId: "1068121769290",
+  appId: "1:1068121769290:web:ec181fee00c03dc06f6db3"
+};
+
+// After your first Google sign-in, copy your UID from Firebase Authentication > Users and paste it here.
+const ADMIN_UID = "PASTE_ADMIN_UID_HERE";
+const LEAGUE_DOC_ID = 'tuesday-2026';
+// ==========================
+
 const INITIAL_DATA = {"season":2026,"weeks":["Wk 1","Wk 2","Wk 3","Wk 4","Wk 5","Wk 6","Wk 7","Wk 8","Wk 9","Wk 10","Wk 11","Wk 12","Wk 13","Wk 14","Wk 15"],"teams":[{"name":"Brown, Light","scores":[13,null,13,null,12,12,17,17,null,15,11,14,null,null,null]},{"name":"Bradshaw, Randolph","scores":[13,null,12,14,13,15,null,13,15,18,17,20,14,19,null]},{"name":"Cole, Judy","scores":[13,14,12,16,13,11,16,14,13,null,20,17,17,18,null]},{"name":"Rawling, Whitford","scores":[13,9,9,10,9,9,9,null,null,null,null,null,null,null,null]},{"name":"Jackson, Shellhorn","scores":[null,12,null,19,13,null,14,16,20,18,17,15,null,null,null]},{"name":"Buske, Hoerle","scores":[13,14,14,14,null,17,15,12,12,14,15,18,13,19,null]},{"name":"Caffey, Shockley","scores":[17,15,14,16,16,14,18,16,18,17,18,20,17,null,null]},{"name":"Bays, Baty","scores":[null,null,15,14,12,16,15,15,null,14,15,15,16,14,null]},{"name":"Crowder, True","scores":[11,15,15,13,11,13,11,13,12,14,14,null,15,18,null]},{"name":"Munhollands","scores":[12,11,null,9,13,11,13,10,9,12,14,16,13,null,null]},{"name":"Lewis, Hendrix","scores":[13,11,12,null,12,16,16,15,13,null,null,17,18,null,null]},{"name":"Hopkins, Root","scores":[15,12,16,null,15,12,12,null,11,18,13,13,15,19,null]},{"name":"Ford, Snook","scores":[20,17,15,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Blattel, Marcum","scores":[15,14,15,null,19,15,null,21,null,23,20,null,null,18,null]},{"name":"Mahans","scores":[15,14,null,19,18,20,19,null,18,16,17,19,19,18,null]},{"name":"Uder, Ledbetter","scores":[18,null,15,16,14,14,16,17,18,17,15,null,17,16,null]},{"name":"Perry, Roy","scores":[19,15,14,18,15,16,14,14,19,15,null,null,14,14,null]},{"name":"Clinefelter, Griffen","scores":[18,18,null,21,19,16,19,18,18,null,19,19,null,20,null]},{"name":"Hough, Overstreet","scores":[null,null,17,20,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Henson, Williams","scores":[16,14,18,19,20,19,18,15,19,null,null,null,20,15,null]},{"name":"Lucas, Wolken","scores":[16,18,15,21,17,14,17,17,19,18,19,19,null,null,null]},{"name":"Hough, Patten","scores":[16,null,15,null,19,17,19,16,17,22,16,18,18,15,null]},{"name":"Norman, Howe","scores":[null,14,14,14,14,null,14,16,17,15,15,15,14,16,null]},{"name":"Howe, Schnitzer","scores":[14,18,19,20,20,15,19,19,20,17,23,19,21,20,null]},{"name":"Southards","scores":[17,22,20,17,null,null,null,null,null,20,21,null,null,21,null]},{"name":"Wall, Windsor","scores":[17,null,18,null,15,null,null,null,null,null,null,null,null,null,null]},{"name":"Walls","scores":[null,null,null,20,null,20,20,19,19,18,null,20,23,22,null]},{"name":"Bennett, Snow","scores":[13,16,16,null,19,17,19,17,15,19,17,15,18,24,null]},{"name":"Schoonover, Newman","scores":[15,19,18,19,15,18,19,14,19,14,19,null,18,16,16]},{"name":"Beach, Hefton","scores":[16,19,15,16,null,15,20,18,null,19,20,20,21,20,null]},{"name":"Helton, Vestal","scores":[14,19,16,18,17,18,18,19,20,18,19,16,null,16,null]},{"name":"Ruble, Uder","scores":[15,18,19,19,20,null,null,null,15,null,18,17,19,null,null]},{"name":"Dudley, Jones","scores":[19,18,22,21,19,19,20,22,21,20,21,20,null,null,null]},{"name":"Paul, Ocain","scores":[16,18,16,19,20,17,18,19,18,16,null,18,21,20,null]},{"name":"Patten, C.Patten","scores":[null,15,null,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Randolph, Shockley","scores":[null,13,null,null,null,null,12,null,null,null,null,null,null,null,null]},{"name":"Weatherington, Byrd","scores":[null,12,13,13,14,15,17,14,14,11,16,22,null,16,null]},{"name":"Brown, Cole","scores":[null,13,null,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Luthy, Marley","scores":[null,16,18,17,18,14,null,20,null,16,19,17,17,20,null]},{"name":"Boggs/Brownewell","scores":[null,null,13,17,18,16,15,14,12,16,15,18,18,null,null]},{"name":"Shellhorn/B.Thompson","scores":[null,null,13,null,null,null,null,null,null,null,null,null,null,17,null]},{"name":"S.Mahan/J.Coffman","scores":[null,null,17,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Mathers","scores":[null,null,20,24,21,null,null,null,null,null,null,null,null,null,null]},{"name":"Snow/Carpenter","scores":[null,null,20,19,null,18,null,20,null,18,20,20,23,22,null]},{"name":"Hopkins/Hopkins","scores":[null,null,null,13,null,null,null,15,null,null,null,null,null,null,null]},{"name":"Johnson/Deckard","scores":[null,null,null,17,null,null,14,13,13,14,15,18,17,14,null]},{"name":"R.Whitford/Rawlings","scores":[null,null,null,null,null,null,null,13,10,9,14,14,13,10,null]},{"name":"Snow/Hayes","scores":[null,null,null,16,null,null,null,null,17,null,null,null,null,null,null]},{"name":"M. McBride/Ruble","scores":[null,null,null,null,20,23,19,19,null,null,null,null,null,null,null]},{"name":"Emerson/Deckard","scores":[null,null,null,null,null,14,null,null,null,null,null,null,null,null,null]},{"name":"Jackson/Thompson","scores":[null,null,null,null,null,13,null,null,null,null,null,null,null,null,null]},{"name":"Ford/Coffman","scores":[null,null,null,null,null,15,17,17,19,16,17,19,20,17,null]},{"name":"Southards/Boston","scores":[null,null,null,null,null,20,17,null,null,null,null,null,null,null,null]},{"name":"Fort/Howe","scores":[null,null,null,null,null,14,null,null,null,null,null,null,null,null,null]},{"name":"Marley/Hopkins","scores":[null,18,null,null,null,20,null,null,null,null,null,null,null,null,null]},{"name":"Fort/Fort","scores":[null,null,null,null,null,null,17,17,18,19,18,22,20,20,null]},{"name":"Blattel/Plazz","scores":[null,null,null,null,null,null,17,null,null,null,null,null,null,null,null]},{"name":"Luthy/J.Root","scores":[null,null,null,null,null,null,null,null,15,null,null,null,null,null,null]},{"name":"Lewis/C.Lewis","scores":[null,null,null,null,null,null,null,null,null,15,null,null,null,null,null]},{"name":"J.Lewis/J. Root","scores":[null,null,null,null,null,null,null,null,null,21,null,null,null,17,null]},{"name":"Blattel/Gann","scores":[null,null,null,null,null,null,null,null,null,null,null,14,null,null,null]},{"name":"Ledbetters","scores":[null,null,null,null,null,null,null,null,null,null,null,14,null,null,null]},{"name":"Byrd/Burgess","scores":[null,null,null,null,null,null,null,null,null,null,null,null,18,null,null]},{"name":"Lucas/Jennings","scores":[null,null,null,null,null,null,null,null,null,null,null,null,15,null,null]},{"name":"Caffey/Stroup","scores":[null,null,null,null,null,null,null,null,null,null,null,null,null,19,null]},{"name":"Jennings/Wolken","scores":[null,null,null,null,null,null,null,null,null,null,null,null,null,20,null]}]};
-const STORAGE_KEY='tuesdayLeague2026_simple_v1';
-let state=loadState();
+const STORAGE_KEY='tuesdayLeague2026_simple_v2';
+let state=loadLocalState();
 let sortMode='rounds';
 let saveTimer=null;
+let db=null, auth=null, leagueRef=null;
+let firebaseReady=false, cloudLoaded=false, cloudDocExists=false, isAdmin=false, currentUser=null;
+let unsubscribeLeague=null;
 
 function deepCopy(v){return JSON.parse(JSON.stringify(v));}
-function loadState(){
+function configIsFilled(){return !Object.values(firebaseConfig).some(v=>String(v).startsWith('PASTE_'));}
+function adminUidIsFilled(){return ADMIN_UID && !ADMIN_UID.startsWith('PASTE_');}
+function loadLocalState(){
   try{
-    const saved=localStorage.getItem(STORAGE_KEY);
-    if(saved){
-      const parsed=JSON.parse(saved);
-      if(parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.weeks)) return parsed;
-    }
+    const saved=localStorage.getItem(STORAGE_KEY) || localStorage.getItem('tuesdayLeague2026_simple_v1');
+    if(saved){const parsed=JSON.parse(saved);if(parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.weeks)) return parsed;}
   }catch(e){}
   return deepCopy(INITIAL_DATA);
 }
-function saveState(){
-  document.getElementById('saveText').textContent='Saving…';
+function saveLocalBackup(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+function setSaveText(text){document.getElementById('saveText').textContent=text;}
+function updateNote(message, show=true){const n=document.getElementById('deviceNote');n.textContent=message;n.classList.toggle('show',show);}
+function sanitizeCloudState(data){
+  if(!data || !Array.isArray(data.teams) || !Array.isArray(data.weeks)) return null;
+  return {season:Number(data.season)||2026,weeks:data.weeks,teams:data.teams};
+}
+async function saveState(){
+  saveLocalBackup();
+  if(!firebaseReady){setSaveText('Saved locally');return;}
+  if(!isAdmin){setSaveText('View only');return;}
+  setSaveText('Saving…');
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));document.getElementById('saveText').textContent='Saved';}
-    catch(e){document.getElementById('saveText').textContent='Save failed';}
-  },120);
+  saveTimer=setTimeout(async()=>{
+    try{
+      await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});
+      setSaveText('Saved to cloud');
+    }catch(e){console.error(e);setSaveText('Cloud save failed');updateNote('Firebase could not save this change. Check your Firestore rules and connection.');}
+  },180);
 }
 function numericScores(team){return team.scores.filter(v=>typeof v==='number' && Number.isFinite(v));}
 function average(team){const a=numericScores(team);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
 function soloAverage(team){const a=numericScores(team);return a.length>3?average(team)*0.80:null;}
 function formatAvg(v){return v==null?'—':v.toFixed(2);}
 function currentWeekIndex(){return Math.max(0,state.weeks.length-1);}
-function displayWeekOrder(){
-  const cur=currentWeekIndex();
-  const order=[cur];
-  for(let i=cur-1;i>=0;i--) order.push(i);
-  return order;
-}
+function displayWeekOrder(){const cur=currentWeekIndex();const order=[cur];for(let i=cur-1;i>=0;i--) order.push(i);return order;}
 function orderedTeams(){
   const rows=state.teams.map((t,i)=>({team:t,index:i,avg:average(t),played:numericScores(t).length}));
-  if(sortMode==='average'){
-    rows.sort((x,y)=>(y.avg??-Infinity)-(x.avg??-Infinity)||y.played-x.played||x.index-y.index);
-  }else{
-    rows.sort((x,y)=>y.played-x.played||x.index-y.index);
-  }
+  if(sortMode==='average') rows.sort((x,y)=>(y.avg??-Infinity)-(x.avg??-Infinity)||y.played-x.played||x.index-y.index);
+  else rows.sort((x,y)=>y.played-x.played||x.index-y.index);
   return rows;
 }
-function parseScore(raw){
-  const s=String(raw??'').trim();
-  if(!s || s.toLowerCase()==='x') return null;
-  if(!/^\d{1,2}(?:\.\d)?$/.test(s)) return undefined;
-  const n=Number(s);
-  if(n<0 || n>99) return undefined;
-  return n;
-}
+function parseScore(raw){const s=String(raw??'').trim();if(!s||s.toLowerCase()==='x')return null;if(!/^\d{1,2}(?:\.\d)?$/.test(s))return undefined;const n=Number(s);if(n<0||n>99)return undefined;return n;}
 function render(){
   const table=document.getElementById('leagueTable');
-  const weeks=displayWeekOrder();
-  const rows=orderedTeams();
-  const totalCols=3+weeks.length;
+  const weeks=displayWeekOrder(),rows=orderedTeams();
   let html='<thead><tr><th class="team">Team</th><th class="avg">Avg</th><th class="solo">SOLO AVG</th>';
   weeks.forEach((wi,pos)=>{html+=`<th class="score-col ${pos===0?'current-head':''}">${escapeHtml(state.weeks[wi])}${pos===0?'<br><span style="font-size:.66rem;font-weight:600;opacity:.85">CURRENT</span>':''}</th>`;});
   html+='</tr></thead><tbody>';
   rows.forEach((r,rank)=>{
-    const avg=average(r.team); const solo=soloAverage(r.team); const played=r.played;
+    const avg=average(r.team),solo=soloAverage(r.team),played=r.played;
     html+=`<tr><td class="team" title="${escapeAttr(r.team.name)}"><span class="rank">${sortMode==='average'?(rank+1)+'.':''}</span>${escapeHtml(r.team.name)}</td><td class="avg">${formatAvg(avg)}<small>${played} played</small></td><td class="solo">${formatAvg(solo)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small></td>`;
     weeks.forEach((wi,pos)=>{
       const v=r.team.scores[wi];
-      html+=`<td class="score-col ${pos===0?'current-cell':''}"><input class="score" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="${escapeAttr(r.team.name)} ${escapeAttr(state.weeks[wi])}" data-team="${r.index}" data-week="${wi}" value="${typeof v==='number'?v:''}"></td>`;
+      const readOnly=firebaseReady&&!isAdmin?' readonly':'';
+      html+=`<td class="score-col ${pos===0?'current-cell':''}"><input class="score" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="${escapeAttr(r.team.name)} ${escapeAttr(state.weeks[wi])}" data-team="${r.index}" data-week="${wi}" value="${typeof v==='number'?v:''}"${readOnly}></td>`;
     });
     html+='</tr>';
   });
   html+='</tbody>';
-  table.innerHTML=html;
-  bindScoreInputs();
-  document.getElementById('summary').textContent=`${rows.length} teams • sorted by rounds played • ${state.weeks.length} weeks • blank = not played`;
+  table.innerHTML=html;bindScoreInputs();
+  document.getElementById('summary').textContent=`${rows.length} teams • sorted by ${sortMode==='average'?'average':'rounds played'} • ${state.weeks.length} weeks • blank = not played`;
   document.getElementById('sortBtn').textContent=sortMode==='average'?'Most Rounds':'Rank by Avg';
+  document.getElementById('addTeamBtn').disabled=firebaseReady&&!isAdmin;
+  document.getElementById('addWeekBtn').disabled=firebaseReady&&!isAdmin;
 }
 function bindScoreInputs(){
   document.querySelectorAll('.score').forEach(inp=>{
-    inp.addEventListener('focus',()=>inp.select());
+    inp.addEventListener('focus',()=>{if(!inp.readOnly)inp.select();});
     inp.addEventListener('input',()=>{
-      const parsed=parseScore(inp.value);
-      if(parsed===undefined){inp.style.boxShadow='inset 0 0 0 2px #a33b32';return;}
-      inp.style.boxShadow='';
-      const ti=Number(inp.dataset.team), wi=Number(inp.dataset.week);
-      state.teams[ti].scores[wi]=parsed;
-      const row=inp.closest('tr');
-      const avgCell=row.querySelector('.avg'), soloCell=row.querySelector('.solo');
-      const a=average(state.teams[ti]), s=soloAverage(state.teams[ti]), played=numericScores(state.teams[ti]).length;
-      avgCell.innerHTML=`${formatAvg(a)}<small>${played} played</small>`;
-      soloCell.innerHTML=`${formatAvg(s)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small>`;
-      saveState();
+      if(inp.readOnly)return;
+      const parsed=parseScore(inp.value);if(parsed===undefined){inp.style.boxShadow='inset 0 0 0 2px #a33b32';return;}
+      inp.style.boxShadow='';const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week);state.teams[ti].scores[wi]=parsed;
+      const row=inp.closest('tr'),avgCell=row.querySelector('.avg'),soloCell=row.querySelector('.solo');
+      const a=average(state.teams[ti]),s=soloAverage(state.teams[ti]),played=numericScores(state.teams[ti]).length;
+      avgCell.innerHTML=`${formatAvg(a)}<small>${played} played</small>`;soloCell.innerHTML=`${formatAvg(s)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small>`;saveState();
     });
     inp.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){
-        e.preventDefault();
-        const ti=Number(inp.dataset.team), wi=Number(inp.dataset.week);
-        const currentRows=orderedTeams();
-        const p=currentRows.findIndex(r=>r.index===ti);
-        const next=currentRows[p+1];
-        render();
-        if(next){
-          const target=document.querySelector(`.score[data-team="${next.index}"][data-week="${wi}"]`);
-          if(target){target.focus();target.select();target.scrollIntoView({block:'nearest',inline:'nearest'});}
-        }
-      }
-      if((e.key==='ArrowDown'||e.key==='ArrowUp') && !e.shiftKey){
-        e.preventDefault();
-        const ti=Number(inp.dataset.team), wi=Number(inp.dataset.week);
-        const currentRows=orderedTeams();
-        const p=currentRows.findIndex(r=>r.index===ti);
-        const next=currentRows[p+(e.key==='ArrowDown'?1:-1)];
-        if(next){const target=document.querySelector(`.score[data-team="${next.index}"][data-week="${wi}"]`);if(target){target.focus();target.select();}}
-      }
+      if(inp.readOnly)return;
+      if(e.key==='Enter'){e.preventDefault();const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week),currentRows=orderedTeams(),p=currentRows.findIndex(r=>r.index===ti),next=currentRows[p+1];render();if(next){const target=document.querySelector(`.score[data-team="${next.index}"][data-week="${wi}"]`);if(target){target.focus();target.select();target.scrollIntoView({block:'nearest',inline:'nearest'});}}}
+      if((e.key==='ArrowDown'||e.key==='ArrowUp')&&!e.shiftKey){e.preventDefault();const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week),currentRows=orderedTeams(),p=currentRows.findIndex(r=>r.index===ti),next=currentRows[p+(e.key==='ArrowDown'?1:-1)];if(next){const target=document.querySelector(`.score[data-team="${next.index}"][data-week="${wi}"]`);if(target){target.focus();target.select();}}}
     });
   });
 }
@@ -176,29 +174,51 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':
 function escapeAttr(s){return escapeHtml(s);}
 
 document.getElementById('sortBtn').addEventListener('click',()=>{sortMode=sortMode==='rounds'?'average':'rounds';render();});
-document.getElementById('addWeekBtn').addEventListener('click',()=>{
-  const n=state.weeks.length+1;
-  state.weeks.push(`Wk ${n}`);
-  state.teams.forEach(t=>t.scores.push(null));
-  sortMode='rounds';saveState();render();
-  setTimeout(()=>{const first=document.querySelector(`.score[data-week="${currentWeekIndex()}"]`);if(first){first.focus();first.select();}},0);
+document.getElementById('addWeekBtn').addEventListener('click',()=>{if(firebaseReady&&!isAdmin)return;const n=state.weeks.length+1;state.weeks.push(`Wk ${n}`);state.teams.forEach(t=>t.scores.push(null));sortMode='rounds';saveState();render();setTimeout(()=>{const first=document.querySelector(`.score[data-week="${currentWeekIndex()}"]`);if(first){first.focus();first.select();}},0);});
+const dialog=document.getElementById('dialog'),teamName=document.getElementById('teamName');
+function closeDialog(){dialog.classList.remove('show');teamName.value='';}
+document.getElementById('addTeamBtn').addEventListener('click',()=>{if(firebaseReady&&!isAdmin)return;dialog.classList.add('show');setTimeout(()=>teamName.focus(),0);});
+document.getElementById('cancelTeam').addEventListener('click',closeDialog);dialog.addEventListener('click',e=>{if(e.target===dialog)closeDialog();});document.getElementById('saveTeam').addEventListener('click',addTeam);teamName.addEventListener('keydown',e=>{if(e.key==='Enter')addTeam();if(e.key==='Escape')closeDialog();});
+function addTeam(){const name=teamName.value.trim();if(!name||firebaseReady&&!isAdmin)return;state.teams.push({name,scores:Array(state.weeks.length).fill(null)});saveState();closeDialog();render();}
+
+const authBtn=document.getElementById('authBtn');
+authBtn.addEventListener('click',async()=>{
+  if(!firebaseReady){updateNote('Firebase is not configured yet. Follow the README steps, then replace the placeholder config values in index.html.');return;}
+  try{
+    if(currentUser) await signOut(auth);
+    else await signInWithPopup(auth,new GoogleAuthProvider());
+  }catch(e){console.error(e);updateNote(`Sign-in problem: ${e.message}`);}
 });
 
-const dialog=document.getElementById('dialog'), teamName=document.getElementById('teamName');
-function closeDialog(){dialog.classList.remove('show');teamName.value='';}
-document.getElementById('addTeamBtn').addEventListener('click',()=>{dialog.classList.add('show');setTimeout(()=>teamName.focus(),0);});
-document.getElementById('cancelTeam').addEventListener('click',closeDialog);
-dialog.addEventListener('click',e=>{if(e.target===dialog)closeDialog();});
-document.getElementById('saveTeam').addEventListener('click',addTeam);
-teamName.addEventListener('keydown',e=>{if(e.key==='Enter')addTeam();if(e.key==='Escape')closeDialog();});
-function addTeam(){
-  const name=teamName.value.trim();if(!name)return;
-  state.teams.push({name,scores:Array(state.weeks.length).fill(null)});
-  saveState();closeDialog();render();
+async function startFirebase(){
+  if(!configIsFilled()){firebaseReady=false;setSaveText('Local setup mode');updateNote('Firebase Web app config is missing from index.html.');render();return;}
+  try{
+    const app=initializeApp(firebaseConfig);db=getFirestore(app);auth=getAuth(app);await setPersistence(auth,browserLocalPersistence);leagueRef=doc(db,'leagues',LEAGUE_DOC_ID);firebaseReady=true;
+    onAuthStateChanged(auth,async user=>{
+      currentUser=user;isAdmin=!!(user&&adminUidIsFilled()&&user.uid===ADMIN_UID);authBtn.textContent=user?'Sign Out':'Admin Sign In';
+      if(user&&!adminUidIsFilled()) updateNote(`Signed in successfully. Your Firebase UID is: ${user.uid} — paste this into ADMIN_UID in index.html and into firestore.rules.`);
+      else if(user&&!isAdmin) updateNote('You are signed in, but this Google account is not the configured league admin.');
+      else if(isAdmin) updateNote(`Cloud sync is active. Signed in as ${user.email||'admin'}.`,false);
+      else updateNote('Cloud scores are live. Sign in as admin only when you need to edit.',false);
+      render();
+      if(isAdmin&&cloudLoaded===false) setSaveText('Connecting…');
+      if(isAdmin&&cloudLoaded&&!cloudDocExists){
+        state=deepCopy(INITIAL_DATA);saveLocalBackup();
+        try{await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});setSaveText('Cloud initialized');}
+        catch(e){console.error(e);setSaveText('Cloud init failed');updateNote('Signed in, but Firebase blocked the first upload. Check that your Firestore rules contain this admin UID.');}
+      }
+    });
+    unsubscribeLeague=onSnapshot(leagueRef,async snap=>{
+      cloudLoaded=true;cloudDocExists=snap.exists();
+      if(snap.exists()){const cloud=sanitizeCloudState(snap.data());if(cloud){state=cloud;saveLocalBackup();setSaveText(isAdmin?'Cloud synced':'Live');render();}}
+      else if(isAdmin){state=deepCopy(INITIAL_DATA);saveLocalBackup();await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});setSaveText('Cloud initialized');}
+      else{setSaveText('Cloud empty');updateNote('The Firebase database is connected but has not been initialized yet. Sign in as the configured admin once to upload the current league data.');render();}
+    },err=>{console.error(err);setSaveText('Cloud blocked');updateNote('Firebase connected, but Firestore denied access. Check that the Firestore database exists and your rules are published.');render();});
+  }catch(e){console.error(e);firebaseReady=false;setSaveText('Firebase error');updateNote(`Firebase setup error: ${e.message}`);render();}
 }
 
-document.getElementById('deviceNote').classList.add('show');
 render();
+startFirebase();
 </script>
 </body>
 </html>
