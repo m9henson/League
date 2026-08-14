@@ -25,7 +25,7 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
   <div class="top">
     <div class="title">
       <h1>Tuesday League 2026</h1>
-      <p>Type a score and press Enter — teams with the most rounds played stay at the top automatically.</p>
+      <p>Type the full score, then press Enter — it saves and moves to the next team.</p>
     </div>
     <div class="actions">
       <button id="authBtn" type="button">Admin Sign In</button>
@@ -97,7 +97,8 @@ const INITIAL_DATA = {"season":2026,"weeks":["Wk 1","Wk 2","Wk 3","Wk 4","Wk 5",
 const STORAGE_KEY='tuesdayLeague2026_simple_v2';
 let state=loadLocalState();
 let sortMode='rounds';
-let saveTimer=null;
+let saveQueue=Promise.resolve();
+let scoreEntryActive=false;
 let db=null, auth=null, leagueRef=null;
 let firebaseReady=false, cloudLoaded=false, cloudDocExists=false, isAdmin=false, currentUser=null;
 let unsubscribeLeague=null;
@@ -118,18 +119,25 @@ function sanitizeCloudState(data){
   if(!data || !Array.isArray(data.teams) || !Array.isArray(data.weeks)) return null;
   return {season:Number(data.season)||2026,weeks:data.weeks,teams:data.teams};
 }
-async function saveState(){
+function saveState(){
   saveLocalBackup();
-  if(!firebaseReady){setSaveText('Saved locally');return;}
-  if(!isAdmin){setSaveText('View only');return;}
+  if(!firebaseReady){setSaveText('Saved locally');return Promise.resolve();}
+  if(!isAdmin){setSaveText('View only');return Promise.resolve();}
+  // Capture this exact state and save writes in order. There is intentionally
+  // no debounce/timer here, so pausing between digits can never trigger a save.
+  const payload=deepCopy(state);
   setSaveText('Saving…');
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(async()=>{
+  saveQueue=saveQueue.then(async()=>{
     try{
-      await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});
+      await setDoc(leagueRef,{...payload,updatedAt:serverTimestamp()},{merge:false});
       setSaveText('Saved to cloud');
-    }catch(e){console.error(e);setSaveText('Cloud save failed');updateNote('Firebase could not save this change. Check your Firestore rules and connection.');}
-  },180);
+    }catch(e){
+      console.error(e);
+      setSaveText('Cloud save failed');
+      updateNote('Firebase could not save this change. Check your Firestore rules and connection.');
+    }
+  });
+  return saveQueue;
 }
 function numericScores(team){return team.scores.filter(v=>typeof v==='number' && Number.isFinite(v));}
 function average(team){const a=numericScores(team);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
@@ -173,12 +181,13 @@ function commitScoreInput(inp){
   if(parsed===undefined){inp.style.boxShadow='inset 0 0 0 2px #a33b32';return false;}
   inp.style.boxShadow='';
   const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week);
+  const previous=state.teams[ti].scores[wi];
   state.teams[ti].scores[wi]=parsed;
   const row=inp.closest('tr'),avgCell=row.querySelector('.avg'),soloCell=row.querySelector('.solo');
   const a=average(state.teams[ti]),s=soloAverage(state.teams[ti]),played=numericScores(state.teams[ti]).length;
   avgCell.innerHTML=`${formatAvg(a)}<small>${played} played</small>`;
   soloCell.innerHTML=`${formatAvg(s)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small>`;
-  saveState();
+  if(!Object.is(previous,parsed)) saveState();
   return true;
 }
 function moveScoreFocus(inp,direction){
@@ -189,15 +198,26 @@ function moveScoreFocus(inp,direction){
 }
 function bindScoreInputs(){
   document.querySelectorAll('.score').forEach(inp=>{
-    inp.addEventListener('focus',()=>{if(!inp.readOnly)inp.select();});
-    // Validate while typing, but do not save/re-render until the score is complete.
+    inp.addEventListener('focus',()=>{
+      if(inp.readOnly)return;
+      scoreEntryActive=true;
+      inp.select();
+    });
+    // Typing only changes the input element. No save, no timer, and no render.
     inp.addEventListener('input',()=>{
       if(inp.readOnly)return;
       const parsed=parseScore(inp.value);
       inp.style.boxShadow=parsed===undefined?'inset 0 0 0 2px #a33b32':'';
     });
-    inp.addEventListener('change',()=>{commitScoreInput(inp);});
-    inp.addEventListener('blur',()=>{setTimeout(()=>{const active=document.activeElement;if(!(active&&active.classList&&active.classList.contains('score')))render();},0);});
+    inp.addEventListener('blur',()=>{
+      if(!inp.readOnly) commitScoreInput(inp);
+      // Let focus settle first. Moving to another score cell keeps entry mode active.
+      setTimeout(()=>{
+        const active=document.activeElement;
+        scoreEntryActive=!!(active&&active.classList&&active.classList.contains('score'));
+        if(!scoreEntryActive) render();
+      },0);
+    });
     inp.addEventListener('keydown',e=>{
       if(inp.readOnly)return;
       if(e.key==='Enter'){
@@ -285,7 +305,7 @@ async function startFirebase(){
     });
     unsubscribeLeague=onSnapshot(leagueRef,async snap=>{
       cloudLoaded=true;cloudDocExists=snap.exists();
-      if(snap.exists()){const cloud=sanitizeCloudState(snap.data());if(cloud){state=cloud;saveLocalBackup();setSaveText(isAdmin?'Cloud synced':'Live');const active=document.activeElement;if(!(isAdmin&&active&&active.classList&&active.classList.contains('score')))render();}}
+      if(snap.exists()){const cloud=sanitizeCloudState(snap.data());if(cloud){if(isAdmin&&scoreEntryActive){setSaveText('Editing');return;}state=cloud;saveLocalBackup();setSaveText(isAdmin?'Cloud synced':'Live');render();}}
       else if(isAdmin){state=deepCopy(INITIAL_DATA);saveLocalBackup();await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});setSaveText('Cloud initialized');}
       else{setSaveText('Cloud empty');updateNote('The Firebase database is connected but has not been initialized yet. Sign in as admin once to upload the current league data.');render();}
     },err=>{console.error(err);setSaveText('Cloud blocked');updateNote('Firebase connected, but Firestore denied access. Check that the Firestore database exists and your rules are published.');render();});
