@@ -167,21 +167,47 @@ function render(){
   document.getElementById('addTeamBtn').disabled=firebaseReady&&!isAdmin;
   document.getElementById('addWeekBtn').disabled=firebaseReady&&!isAdmin;
 }
+function commitScoreInput(inp){
+  if(inp.readOnly)return false;
+  const parsed=parseScore(inp.value);
+  if(parsed===undefined){inp.style.boxShadow='inset 0 0 0 2px #a33b32';return false;}
+  inp.style.boxShadow='';
+  const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week);
+  state.teams[ti].scores[wi]=parsed;
+  const row=inp.closest('tr'),avgCell=row.querySelector('.avg'),soloCell=row.querySelector('.solo');
+  const a=average(state.teams[ti]),s=soloAverage(state.teams[ti]),played=numericScores(state.teams[ti]).length;
+  avgCell.innerHTML=`${formatAvg(a)}<small>${played} played</small>`;
+  soloCell.innerHTML=`${formatAvg(s)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small>`;
+  saveState();
+  return true;
+}
+function moveScoreFocus(inp,direction){
+  const wi=inp.dataset.week;
+  const columnInputs=Array.from(document.querySelectorAll(`.score[data-week="${wi}"]`));
+  const p=columnInputs.indexOf(inp),target=columnInputs[p+direction];
+  if(target){target.focus();target.select();target.scrollIntoView({block:'nearest',inline:'nearest'});}
+}
 function bindScoreInputs(){
   document.querySelectorAll('.score').forEach(inp=>{
     inp.addEventListener('focus',()=>{if(!inp.readOnly)inp.select();});
+    // Validate while typing, but do not save/re-render until the score is complete.
     inp.addEventListener('input',()=>{
       if(inp.readOnly)return;
-      const parsed=parseScore(inp.value);if(parsed===undefined){inp.style.boxShadow='inset 0 0 0 2px #a33b32';return;}
-      inp.style.boxShadow='';const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week);state.teams[ti].scores[wi]=parsed;
-      const row=inp.closest('tr'),avgCell=row.querySelector('.avg'),soloCell=row.querySelector('.solo');
-      const a=average(state.teams[ti]),s=soloAverage(state.teams[ti]),played=numericScores(state.teams[ti]).length;
-      avgCell.innerHTML=`${formatAvg(a)}<small>${played} played</small>`;soloCell.innerHTML=`${formatAvg(s)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small>`;saveState();
+      const parsed=parseScore(inp.value);
+      inp.style.boxShadow=parsed===undefined?'inset 0 0 0 2px #a33b32':'';
     });
+    inp.addEventListener('change',()=>{commitScoreInput(inp);});
+    inp.addEventListener('blur',()=>{setTimeout(()=>{const active=document.activeElement;if(!(active&&active.classList&&active.classList.contains('score')))render();},0);});
     inp.addEventListener('keydown',e=>{
       if(inp.readOnly)return;
-      if(e.key==='Enter'){e.preventDefault();const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week),currentRows=orderedTeams(),p=currentRows.findIndex(r=>r.index===ti),next=currentRows[p+1];render();if(next){const target=document.querySelector(`.score[data-team="${next.index}"][data-week="${wi}"]`);if(target){target.focus();target.select();target.scrollIntoView({block:'nearest',inline:'nearest'});}}}
-      if((e.key==='ArrowDown'||e.key==='ArrowUp')&&!e.shiftKey){e.preventDefault();const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week),currentRows=orderedTeams(),p=currentRows.findIndex(r=>r.index===ti),next=currentRows[p+(e.key==='ArrowDown'?1:-1)];if(next){const target=document.querySelector(`.score[data-team="${next.index}"][data-week="${wi}"]`);if(target){target.focus();target.select();}}}
+      if(e.key==='Enter'){
+        e.preventDefault();
+        if(commitScoreInput(inp)) moveScoreFocus(inp,1);
+      }
+      if((e.key==='ArrowDown'||e.key==='ArrowUp')&&!e.shiftKey){
+        e.preventDefault();
+        if(commitScoreInput(inp)) moveScoreFocus(inp,e.key==='ArrowDown'?1:-1);
+      }
     });
   });
 }
@@ -259,7 +285,7 @@ async function startFirebase(){
     });
     unsubscribeLeague=onSnapshot(leagueRef,async snap=>{
       cloudLoaded=true;cloudDocExists=snap.exists();
-      if(snap.exists()){const cloud=sanitizeCloudState(snap.data());if(cloud){state=cloud;saveLocalBackup();setSaveText(isAdmin?'Cloud synced':'Live');render();}}
+      if(snap.exists()){const cloud=sanitizeCloudState(snap.data());if(cloud){state=cloud;saveLocalBackup();setSaveText(isAdmin?'Cloud synced':'Live');const active=document.activeElement;if(!(isAdmin&&active&&active.classList&&active.classList.contains('score')))render();}}
       else if(isAdmin){state=deepCopy(INITIAL_DATA);saveLocalBackup();await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});setSaveText('Cloud initialized');}
       else{setSaveText('Cloud empty');updateNote('The Firebase database is connected but has not been initialized yet. Sign in as admin once to upload the current league data.');render();}
     },err=>{console.error(err);setSaveText('Cloud blocked');updateNote('Firebase connected, but Firestore denied access. Check that the Firestore database exists and your rules are published.');render();});
