@@ -34,7 +34,7 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
       <button id="addWeekBtn" class="primary" type="button">+ Week</button>
     </div>
   </div>
-  <div id="deviceNote" class="sheet-note">Firebase is connected. Finish Google sign-in and add your admin UID to enable editing and cloud sync.</div>
+  <div id="deviceNote" class="sheet-note">Cloud scores are live. Use Admin Sign In only when you need to enter or change scores.</div>
   <div class="statusbar">
     <span id="summary"></span>
     <span class="save"><span class="dot"></span><span id="saveText">Saved</span></span>
@@ -56,10 +56,25 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
   </div>
 </div>
 
+<div id="authDialog" class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="authDialogTitle">
+  <div class="dialog">
+    <h2 id="authDialogTitle">Admin Sign In</h2>
+    <label for="adminUsername">Username</label>
+    <input id="adminUsername" type="text" autocomplete="username" value="admin" autocapitalize="none" spellcheck="false">
+    <label for="adminPassword" style="margin-top:12px">Password</label>
+    <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Admin password">
+    <div id="authError" class="danger" style="min-height:20px;margin-top:8px;font-size:.86rem"></div>
+    <div class="dialog-actions">
+      <button id="cancelAuth" type="button">Cancel</button>
+      <button id="loginAdmin" class="primary" type="button">Sign In</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
 import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
 
 // ===== FIREBASE SETUP =====
 // Replace these placeholder values with the config Firebase gives you for your Web app.
@@ -72,8 +87,9 @@ const firebaseConfig = {
   appId: "1:1068121769290:web:ec181fee00c03dc06f6db3"
 };
 
-// After your first Google sign-in, copy your UID from Firebase Authentication > Users and paste it here.
-const ADMIN_UID = "PASTE_ADMIN_UID_HERE";
+// The page shows a simple username, while Firebase securely authenticates a hidden email/password account.
+const ADMIN_USERNAME = "admin";
+const ADMIN_EMAIL = "admin@league-b6d74.app";
 const LEAGUE_DOC_ID = 'tuesday-2026';
 // ==========================
 
@@ -88,7 +104,6 @@ let unsubscribeLeague=null;
 
 function deepCopy(v){return JSON.parse(JSON.stringify(v));}
 function configIsFilled(){return !Object.values(firebaseConfig).some(v=>String(v).startsWith('PASTE_'));}
-function adminUidIsFilled(){return ADMIN_UID && !ADMIN_UID.startsWith('PASTE_');}
 function loadLocalState(){
   try{
     const saved=localStorage.getItem(STORAGE_KEY) || localStorage.getItem('tuesdayLeague2026_simple_v1');
@@ -182,37 +197,71 @@ document.getElementById('cancelTeam').addEventListener('click',closeDialog);dial
 function addTeam(){const name=teamName.value.trim();if(!name||firebaseReady&&!isAdmin)return;state.teams.push({name,scores:Array(state.weeks.length).fill(null)});saveState();closeDialog();render();}
 
 const authBtn=document.getElementById('authBtn');
+const authDialog=document.getElementById('authDialog');
+const adminUsername=document.getElementById('adminUsername');
+const adminPassword=document.getElementById('adminPassword');
+const authError=document.getElementById('authError');
+
+function openAuthDialog(){
+  authError.textContent='';
+  adminUsername.value=ADMIN_USERNAME;
+  adminPassword.value='';
+  authDialog.classList.add('show');
+  setTimeout(()=>adminPassword.focus(),0);
+}
+function closeAuthDialog(){authDialog.classList.remove('show');authError.textContent='';adminPassword.value='';}
+
 authBtn.addEventListener('click',async()=>{
-  if(!firebaseReady){updateNote('Firebase is not configured yet. Follow the README steps, then replace the placeholder config values in index.html.');return;}
-  try{
-    if(currentUser) await signOut(auth);
-    else await signInWithPopup(auth,new GoogleAuthProvider());
-  }catch(e){console.error(e);updateNote(`Sign-in problem: ${e.message}`);}
+  if(!firebaseReady){updateNote('Firebase is not connected yet.');return;}
+  if(currentUser){
+    try{await signOut(auth);}catch(e){console.error(e);updateNote(`Sign-out problem: ${e.message}`);}
+  }else openAuthDialog();
 });
+
+document.getElementById('cancelAuth').addEventListener('click',closeAuthDialog);
+authDialog.addEventListener('click',e=>{if(e.target===authDialog)closeAuthDialog();});
+document.getElementById('loginAdmin').addEventListener('click',loginAdmin);
+adminPassword.addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin();if(e.key==='Escape')closeAuthDialog();});
+adminUsername.addEventListener('keydown',e=>{if(e.key==='Enter')adminPassword.focus();if(e.key==='Escape')closeAuthDialog();});
+
+async function loginAdmin(){
+  const username=adminUsername.value.trim().toLowerCase();
+  const password=adminPassword.value;
+  authError.textContent='';
+  if(username!==ADMIN_USERNAME){authError.textContent='Incorrect username or password.';return;}
+  if(!password){authError.textContent='Enter the admin password.';return;}
+  try{
+    document.getElementById('loginAdmin').disabled=true;
+    await signInWithEmailAndPassword(auth,ADMIN_EMAIL,password);
+    closeAuthDialog();
+  }catch(e){
+    console.error(e);
+    authError.textContent='Incorrect username or password.';
+  }finally{document.getElementById('loginAdmin').disabled=false;}
+}
 
 async function startFirebase(){
   if(!configIsFilled()){firebaseReady=false;setSaveText('Local setup mode');updateNote('Firebase Web app config is missing from index.html.');render();return;}
   try{
     const app=initializeApp(firebaseConfig);db=getFirestore(app);auth=getAuth(app);await setPersistence(auth,browserLocalPersistence);leagueRef=doc(db,'leagues',LEAGUE_DOC_ID);firebaseReady=true;
     onAuthStateChanged(auth,async user=>{
-      currentUser=user;isAdmin=!!(user&&adminUidIsFilled()&&user.uid===ADMIN_UID);authBtn.textContent=user?'Sign Out':'Admin Sign In';
-      if(user&&!adminUidIsFilled()) updateNote(`Signed in successfully. Your Firebase UID is: ${user.uid} — paste this into ADMIN_UID in index.html and into firestore.rules.`);
-      else if(user&&!isAdmin) updateNote('You are signed in, but this Google account is not the configured league admin.');
-      else if(isAdmin) updateNote(`Cloud sync is active. Signed in as ${user.email||'admin'}.`,false);
+      currentUser=user;isAdmin=!!(user&&String(user.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase());authBtn.textContent=user?'Admin Logout':'Admin Sign In';
+      if(user&&!isAdmin) updateNote('This signed-in account is not the league admin.');
+      else if(isAdmin) updateNote('Admin mode is active. Changes save to Firebase automatically.',false);
       else updateNote('Cloud scores are live. Sign in as admin only when you need to edit.',false);
       render();
       if(isAdmin&&cloudLoaded===false) setSaveText('Connecting…');
       if(isAdmin&&cloudLoaded&&!cloudDocExists){
         state=deepCopy(INITIAL_DATA);saveLocalBackup();
         try{await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});setSaveText('Cloud initialized');}
-        catch(e){console.error(e);setSaveText('Cloud init failed');updateNote('Signed in, but Firebase blocked the first upload. Check that your Firestore rules contain this admin UID.');}
+        catch(e){console.error(e);setSaveText('Cloud init failed');updateNote('Signed in, but Firebase blocked the first upload. Check that your Firestore rules are published.');}
       }
     });
     unsubscribeLeague=onSnapshot(leagueRef,async snap=>{
       cloudLoaded=true;cloudDocExists=snap.exists();
       if(snap.exists()){const cloud=sanitizeCloudState(snap.data());if(cloud){state=cloud;saveLocalBackup();setSaveText(isAdmin?'Cloud synced':'Live');render();}}
       else if(isAdmin){state=deepCopy(INITIAL_DATA);saveLocalBackup();await setDoc(leagueRef,{...state,updatedAt:serverTimestamp()},{merge:false});setSaveText('Cloud initialized');}
-      else{setSaveText('Cloud empty');updateNote('The Firebase database is connected but has not been initialized yet. Sign in as the configured admin once to upload the current league data.');render();}
+      else{setSaveText('Cloud empty');updateNote('The Firebase database is connected but has not been initialized yet. Sign in as admin once to upload the current league data.');render();}
     },err=>{console.error(err);setSaveText('Cloud blocked');updateNote('Firebase connected, but Firestore denied access. Check that the Firestore database exists and your rules are published.');render();});
   }catch(e){console.error(e);firebaseReady=false;setSaveText('Firebase error');updateNote(`Firebase setup error: ${e.message}`);render();}
 }
