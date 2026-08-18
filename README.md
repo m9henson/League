@@ -1,35 +1,17 @@
-# Tuesday League - Firebase Admin/Password Setup
+Tuesday League - New Season Rollover
 
-This version uses a simple visible username `admin`. The password is NOT stored in the GitHub page.
-Firebase Authentication securely checks the password using the hidden account email `admin@league-b6d74.app`.
+This version stays alphabetical and includes search, Firebase admin/password login, score entry, Avg, and SOLO AVG.
 
-## Firebase setup
+New admin-only feature: New Season
+- Click New Season while signed in as admin.
+- Choose the next season year.
+- Confirm the rollover.
+- Weekly scores are cleared and Week 1 is created.
+- Team names remain.
+- A team with 4+ rounds carries its final season Avg forward as its HCP Avg.
+- If a team has fewer than 4 rounds and already has an established HCP Avg, the established HCP is preserved.
+- The carried HCP is shown below the team name (for example: HCP 17.55 • from 2026).
+- The Avg column then tracks only the new season's scores.
+- SOLO AVG is 80% of the carried HCP when that HCP was established from 4+ rounds.
 
-1. Open the Firebase project `league-b6d74`.
-2. Go to Authentication > Sign-in method.
-3. Enable **Email/Password** and save.
-4. Go to Authentication > Users and create one user:
-   - Email: `admin@league-b6d74.app`
-   - Password: choose your own strong password.
-5. Go to Firestore Database > Rules.
-6. Replace the rules with the contents of `firestore.rules` in this folder and click Publish.
-7. Make sure Firestore Database itself has already been created.
-
-## GitHub
-
-Replace the `index.html` in your `League` repository with this new `index.html`.
-
-## How it works
-
-Visitors can view the league without signing in.
-To edit, click **Admin Sign In** and use:
-- Username: `admin`
-- Password: the password you created in Firebase Authentication.
-
-Once signed in, score changes save to Firebase automatically and sync to other devices.
-
-## Latest interface changes
-
-- Teams default to alphabetical order by the first teammate name (the name before the comma).
-- The search box filters instantly by either teammate name.
-- Rank by Avg is still available; click Alphabetical to return to the normal view.
+The rollover cannot restore old weekly scores from the league page, so use it only after the season is complete.

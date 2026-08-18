@@ -8,15 +8,15 @@
 <style>
 :root{--bg:#f5f6f4;--card:#fff;--text:#17201c;--muted:#68736d;--line:#dce2de;--accent:#176b4d;--accent2:#e7f3ed;--danger:#a33b32;--team-w:178px;--avg-w:72px;--solo-w:82px;--score-w:72px}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}
-.app{max-width:1600px;margin:0 auto;padding:14px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.title h1{font-size:1.35rem;margin:0}.title p{margin:3px 0 0;color:var(--muted);font-size:.9rem}.actions{display:flex;gap:8px;flex-wrap:wrap}.search-row{display:flex;align-items:center;gap:8px;margin:0 0 10px}.search-box{width:min(420px,100%);border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:10px 12px;font-size:1rem;outline:none}.search-box:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent2)}
-button{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:9px 12px;font-weight:650;cursor:pointer}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}button:active{transform:translateY(1px)}button.small{padding:7px 9px;font-size:.88rem}
+.app{max-width:1600px;margin:0 auto;padding:14px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.title h1{font-size:1.35rem;margin:0}.title p{margin:3px 0 0;color:var(--muted);font-size:.9rem}.actions{display:flex;gap:8px;flex-wrap:wrap}.team small{display:block;font-weight:500;color:var(--muted);font-size:.66rem;line-height:1.15;margin-top:2px;overflow:hidden;text-overflow:ellipsis}.search-row{display:flex;align-items:center;gap:8px;margin:0 0 10px}.search-box{width:min(420px,100%);border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:10px 12px;font-size:1rem;outline:none}.search-box:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent2)}
+button{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:9px 12px;font-weight:650;cursor:pointer}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}button.danger-btn{border-color:#d7aaa6;color:var(--danger);background:#fff}button:disabled{opacity:.5;cursor:not-allowed}button:active{transform:translateY(1px)}button.small{padding:7px 9px;font-size:.88rem}
 .statusbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:4px 2px 10px;color:var(--muted);font-size:.86rem}.save{display:flex;align-items:center;gap:6px}.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .table-wrap{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:auto;max-height:calc(100vh - 145px);box-shadow:0 1px 2px rgba(0,0,0,.03)}table{border-collapse:separate;border-spacing:0;min-width:max-content;width:100%}th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0;text-align:center;background:#fff}thead th{position:sticky;top:0;z-index:5;background:#eef1ef;height:48px;font-size:.83rem;color:#3f4944;font-weight:750}tbody tr:last-child td{border-bottom:0}th:last-child,td:last-child{border-right:0}
 .team{position:sticky;left:0;z-index:3;width:var(--team-w);min-width:var(--team-w);max-width:var(--team-w);text-align:left!important;padding:0 10px!important;font-weight:650;background:#fff!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.avg{position:sticky;left:var(--team-w);z-index:3;width:var(--avg-w);min-width:var(--avg-w);font-weight:800;background:#fbfcfb!important}.solo{position:sticky;left:calc(var(--team-w) + var(--avg-w));z-index:3;width:var(--solo-w);min-width:var(--solo-w);font-weight:800;background:#f7faf8!important}.score-col{width:var(--score-w);min-width:var(--score-w)}thead .team,thead .avg,thead .solo{z-index:8;background:#eef1ef!important}.current-head{background:var(--accent)!important;color:#fff!important}.current-cell{background:var(--accent2)!important}
-.score{width:58px;height:42px;border:0;background:transparent;text-align:center;font-size:1rem;font-weight:650;color:var(--text);outline:none;border-radius:8px;margin:3px}.score:focus{box-shadow:inset 0 0 0 2px var(--accent);background:#fff}.score[readonly]{color:var(--text);opacity:.72;cursor:default}.score[readonly]:focus{box-shadow:none;background:transparent}.current-cell .score{font-size:1.08rem;font-weight:800}.rank{display:inline-flex;min-width:24px;justify-content:center;color:var(--muted);font-size:.78rem;margin-right:5px}.empty{color:#a6afaa;font-weight:500}.avg small,.solo small{display:block;font-weight:500;color:var(--muted);font-size:.66rem}
+.score{width:58px;height:42px;border:0;background:transparent;text-align:center;font-size:1rem;font-weight:650;color:var(--text);outline:none;border-radius:8px;margin:3px}.score:focus{box-shadow:inset 0 0 0 2px var(--accent);background:#fff}.score[readonly]{color:var(--text);opacity:.72;cursor:default}.score[readonly]:focus{box-shadow:none;background:transparent}.current-cell .score{font-size:1.08rem;font-weight:800}.empty{color:#a6afaa;font-weight:500}.avg small,.solo small{display:block;font-weight:500;color:var(--muted);font-size:.66rem}
 .sheet-note{padding:9px 12px;background:#fff9e9;border:1px solid #eadfbf;border-radius:10px;color:#6d5a20;font-size:.86rem;margin-bottom:10px;display:none}.sheet-note.show{display:block}
-.dialog-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.dialog-backdrop.show{display:flex}.dialog{width:min(430px,100%);background:#fff;border-radius:16px;padding:18px}.dialog h2{margin:0 0 12px;font-size:1.15rem}.dialog label{display:block;font-weight:650;margin-bottom:6px}.dialog input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:1rem}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.danger{color:var(--danger)}
-@media(max-width:620px){:root{--team-w:150px;--avg-w:62px;--solo-w:72px;--score-w:66px}.app{padding:8px}.title h1{font-size:1.16rem}.title p{font-size:.78rem}.actions{width:100%}.actions button{flex:1;padding:9px 8px;font-size:.86rem}.search-row{margin-bottom:8px}.search-box{width:100%;padding:9px 11px}.statusbar{font-size:.76rem}.table-wrap{max-height:calc(100vh - 205px);border-radius:11px}.team{padding:0 8px!important;font-size:.88rem}.avg,.solo{font-size:.86rem}.score{width:54px;height:42px}.rank{display:none}}
+.dialog-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.dialog-backdrop.show{display:flex}.dialog{width:min(430px,100%);background:#fff;border-radius:16px;padding:18px}.dialog h2{margin:0 0 12px;font-size:1.15rem}.dialog p{margin:0 0 12px;color:var(--muted);font-size:.9rem;line-height:1.4}.dialog label{display:block;font-weight:650;margin-bottom:6px}.dialog input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:1rem}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.danger{color:var(--danger)}
+@media(max-width:620px){:root{--team-w:150px;--avg-w:62px;--solo-w:72px;--score-w:66px}.app{padding:8px}.title h1{font-size:1.16rem}.title p{font-size:.78rem}.actions{width:100%}.actions button{flex:1;padding:9px 8px;font-size:.86rem}.search-row{margin-bottom:8px}.search-box{width:100%;padding:9px 11px}.statusbar{font-size:.76rem}.table-wrap{max-height:calc(100vh - 205px);border-radius:11px}.team{padding:0 8px!important;font-size:.88rem}.avg,.solo{font-size:.86rem}.score{width:54px;height:42px}}
 @media print{.actions,.statusbar,.sheet-note{display:none!important}.table-wrap{max-height:none;overflow:visible;border:0}.team,.avg,.solo,thead th{position:static!important}}
 </style>
 </head>
@@ -24,13 +24,13 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
 <div class="app">
   <div class="top">
     <div class="title">
-      <h1>Tuesday League 2026</h1>
+      <h1 id="pageTitle">Tuesday League 2026</h1>
       <p>Teams are alphabetical by first teammate. Search by either name, then enter scores as usual.</p>
     </div>
     <div class="actions">
       <button id="authBtn" type="button">Admin Sign In</button>
-      <button id="sortBtn" type="button">Rank by Avg</button>
       <button id="addTeamBtn" type="button">+ Team</button>
+      <button id="newSeasonBtn" class="danger-btn" type="button" style="display:none">New Season</button>
       <button id="addWeekBtn" class="primary" type="button">+ Week</button>
     </div>
   </div>
@@ -74,6 +74,19 @@ button{border:1px solid var(--line);background:var(--card);color:var(--text);bor
   </div>
 </div>
 
+<div id="seasonDialog" class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="seasonDialogTitle">
+  <div class="dialog">
+    <h2 id="seasonDialogTitle">Start New Season</h2>
+    <p id="seasonDialogText">Each team's final average will be saved as its handicap average. Weekly scores will be cleared and the new season will start with Week 1.</p>
+    <label for="newSeasonYear">New season year</label>
+    <input id="newSeasonYear" type="number" inputmode="numeric" min="2026" max="2100" step="1">
+    <div class="dialog-actions">
+      <button id="cancelSeason" type="button">Cancel</button>
+      <button id="confirmSeason" class="danger-btn" type="button">Start New Season</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
 import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js';
@@ -97,9 +110,8 @@ const LEAGUE_DOC_ID = 'tuesday-2026';
 // ==========================
 
 const INITIAL_DATA = {"season":2026,"weeks":["Wk 1","Wk 2","Wk 3","Wk 4","Wk 5","Wk 6","Wk 7","Wk 8","Wk 9","Wk 10","Wk 11","Wk 12","Wk 13","Wk 14","Wk 15"],"teams":[{"name":"Brown, Light","scores":[13,null,13,null,12,12,17,17,null,15,11,14,null,null,null]},{"name":"Bradshaw, Randolph","scores":[13,null,12,14,13,15,null,13,15,18,17,20,14,19,null]},{"name":"Cole, Judy","scores":[13,14,12,16,13,11,16,14,13,null,20,17,17,18,null]},{"name":"Rawling, Whitford","scores":[13,9,9,10,9,9,9,null,null,null,null,null,null,null,null]},{"name":"Jackson, Shellhorn","scores":[null,12,null,19,13,null,14,16,20,18,17,15,null,null,null]},{"name":"Buske, Hoerle","scores":[13,14,14,14,null,17,15,12,12,14,15,18,13,19,null]},{"name":"Caffey, Shockley","scores":[17,15,14,16,16,14,18,16,18,17,18,20,17,null,null]},{"name":"Bays, Baty","scores":[null,null,15,14,12,16,15,15,null,14,15,15,16,14,null]},{"name":"Crowder, True","scores":[11,15,15,13,11,13,11,13,12,14,14,null,15,18,null]},{"name":"Munhollands","scores":[12,11,null,9,13,11,13,10,9,12,14,16,13,null,null]},{"name":"Lewis, Hendrix","scores":[13,11,12,null,12,16,16,15,13,null,null,17,18,null,null]},{"name":"Hopkins, Root","scores":[15,12,16,null,15,12,12,null,11,18,13,13,15,19,null]},{"name":"Ford, Snook","scores":[20,17,15,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Blattel, Marcum","scores":[15,14,15,null,19,15,null,21,null,23,20,null,null,18,null]},{"name":"Mahans","scores":[15,14,null,19,18,20,19,null,18,16,17,19,19,18,null]},{"name":"Uder, Ledbetter","scores":[18,null,15,16,14,14,16,17,18,17,15,null,17,16,null]},{"name":"Perry, Roy","scores":[19,15,14,18,15,16,14,14,19,15,null,null,14,14,null]},{"name":"Clinefelter, Griffen","scores":[18,18,null,21,19,16,19,18,18,null,19,19,null,20,null]},{"name":"Hough, Overstreet","scores":[null,null,17,20,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Henson, Williams","scores":[16,14,18,19,20,19,18,15,19,null,null,null,20,15,null]},{"name":"Lucas, Wolken","scores":[16,18,15,21,17,14,17,17,19,18,19,19,null,null,null]},{"name":"Hough, Patten","scores":[16,null,15,null,19,17,19,16,17,22,16,18,18,15,null]},{"name":"Norman, Howe","scores":[null,14,14,14,14,null,14,16,17,15,15,15,14,16,null]},{"name":"Howe, Schnitzer","scores":[14,18,19,20,20,15,19,19,20,17,23,19,21,20,null]},{"name":"Southards","scores":[17,22,20,17,null,null,null,null,null,20,21,null,null,21,null]},{"name":"Wall, Windsor","scores":[17,null,18,null,15,null,null,null,null,null,null,null,null,null,null]},{"name":"Walls","scores":[null,null,null,20,null,20,20,19,19,18,null,20,23,22,null]},{"name":"Bennett, Snow","scores":[13,16,16,null,19,17,19,17,15,19,17,15,18,24,null]},{"name":"Schoonover, Newman","scores":[15,19,18,19,15,18,19,14,19,14,19,null,18,16,16]},{"name":"Beach, Hefton","scores":[16,19,15,16,null,15,20,18,null,19,20,20,21,20,null]},{"name":"Helton, Vestal","scores":[14,19,16,18,17,18,18,19,20,18,19,16,null,16,null]},{"name":"Ruble, Uder","scores":[15,18,19,19,20,null,null,null,15,null,18,17,19,null,null]},{"name":"Dudley, Jones","scores":[19,18,22,21,19,19,20,22,21,20,21,20,null,null,null]},{"name":"Paul, Ocain","scores":[16,18,16,19,20,17,18,19,18,16,null,18,21,20,null]},{"name":"Patten, C.Patten","scores":[null,15,null,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Randolph, Shockley","scores":[null,13,null,null,null,null,12,null,null,null,null,null,null,null,null]},{"name":"Weatherington, Byrd","scores":[null,12,13,13,14,15,17,14,14,11,16,22,null,16,null]},{"name":"Brown, Cole","scores":[null,13,null,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Luthy, Marley","scores":[null,16,18,17,18,14,null,20,null,16,19,17,17,20,null]},{"name":"Boggs/Brownewell","scores":[null,null,13,17,18,16,15,14,12,16,15,18,18,null,null]},{"name":"Shellhorn/B.Thompson","scores":[null,null,13,null,null,null,null,null,null,null,null,null,null,17,null]},{"name":"S.Mahan/J.Coffman","scores":[null,null,17,null,null,null,null,null,null,null,null,null,null,null,null]},{"name":"Mathers","scores":[null,null,20,24,21,null,null,null,null,null,null,null,null,null,null]},{"name":"Snow/Carpenter","scores":[null,null,20,19,null,18,null,20,null,18,20,20,23,22,null]},{"name":"Hopkins/Hopkins","scores":[null,null,null,13,null,null,null,15,null,null,null,null,null,null,null]},{"name":"Johnson/Deckard","scores":[null,null,null,17,null,null,14,13,13,14,15,18,17,14,null]},{"name":"R.Whitford/Rawlings","scores":[null,null,null,null,null,null,null,13,10,9,14,14,13,10,null]},{"name":"Snow/Hayes","scores":[null,null,null,16,null,null,null,null,17,null,null,null,null,null,null]},{"name":"M. McBride/Ruble","scores":[null,null,null,null,20,23,19,19,null,null,null,null,null,null,null]},{"name":"Emerson/Deckard","scores":[null,null,null,null,null,14,null,null,null,null,null,null,null,null,null]},{"name":"Jackson/Thompson","scores":[null,null,null,null,null,13,null,null,null,null,null,null,null,null,null]},{"name":"Ford/Coffman","scores":[null,null,null,null,null,15,17,17,19,16,17,19,20,17,null]},{"name":"Southards/Boston","scores":[null,null,null,null,null,20,17,null,null,null,null,null,null,null,null]},{"name":"Fort/Howe","scores":[null,null,null,null,null,14,null,null,null,null,null,null,null,null,null]},{"name":"Marley/Hopkins","scores":[null,18,null,null,null,20,null,null,null,null,null,null,null,null,null]},{"name":"Fort/Fort","scores":[null,null,null,null,null,null,17,17,18,19,18,22,20,20,null]},{"name":"Blattel/Plazz","scores":[null,null,null,null,null,null,17,null,null,null,null,null,null,null,null]},{"name":"Luthy/J.Root","scores":[null,null,null,null,null,null,null,null,15,null,null,null,null,null,null]},{"name":"Lewis/C.Lewis","scores":[null,null,null,null,null,null,null,null,null,15,null,null,null,null,null]},{"name":"J.Lewis/J. Root","scores":[null,null,null,null,null,null,null,null,null,21,null,null,null,17,null]},{"name":"Blattel/Gann","scores":[null,null,null,null,null,null,null,null,null,null,null,14,null,null,null]},{"name":"Ledbetters","scores":[null,null,null,null,null,null,null,null,null,null,null,14,null,null,null]},{"name":"Byrd/Burgess","scores":[null,null,null,null,null,null,null,null,null,null,null,null,18,null,null]},{"name":"Lucas/Jennings","scores":[null,null,null,null,null,null,null,null,null,null,null,null,15,null,null]},{"name":"Caffey/Stroup","scores":[null,null,null,null,null,null,null,null,null,null,null,null,null,19,null]},{"name":"Jennings/Wolken","scores":[null,null,null,null,null,null,null,null,null,null,null,null,null,20,null]}]};
-const STORAGE_KEY='tuesdayLeague2026_simple_v2';
+const STORAGE_KEY='tuesdayLeague_current_v3';
 let state=loadLocalState();
-let sortMode='alpha';
 let searchTerm='';
 let saveQueue=Promise.resolve();
 let scoreEntryActive=false;
@@ -111,7 +123,7 @@ function deepCopy(v){return JSON.parse(JSON.stringify(v));}
 function configIsFilled(){return !Object.values(firebaseConfig).some(v=>String(v).startsWith('PASTE_'));}
 function loadLocalState(){
   try{
-    const saved=localStorage.getItem(STORAGE_KEY) || localStorage.getItem('tuesdayLeague2026_simple_v1');
+    const saved=localStorage.getItem(STORAGE_KEY) || localStorage.getItem('tuesdayLeague2026_simple_v2') || localStorage.getItem('tuesdayLeague2026_simple_v1');
     if(saved){const parsed=JSON.parse(saved);if(parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.weeks)) return parsed;}
   }catch(e){}
   return deepCopy(INITIAL_DATA);
@@ -145,7 +157,14 @@ function saveState(){
 }
 function numericScores(team){return team.scores.filter(v=>typeof v==='number' && Number.isFinite(v));}
 function average(team){const a=numericScores(team);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
-function soloAverage(team){const a=numericScores(team);return a.length>3?average(team)*0.80:null;}
+function handicapAverage(team){return typeof team.handicapAvg==='number' && Number.isFinite(team.handicapAvg)?team.handicapAvg:null;}
+function handicapRounds(team){return Number.isFinite(Number(team.handicapRounds))?Number(team.handicapRounds):0;}
+function soloAverage(team){
+  const h=handicapAverage(team);
+  if(h!=null) return handicapRounds(team)>3?h*0.80:null;
+  const a=numericScores(team);
+  return a.length>3?average(team)*0.80:null;
+}
 function formatAvg(v){return v==null?'—':v.toFixed(2);}
 function currentWeekIndex(){return Math.max(0,state.weeks.length-1);}
 function displayWeekOrder(){const cur=currentWeekIndex();const order=[cur];for(let i=cur-1;i>=0;i--) order.push(i);return order;}
@@ -155,13 +174,9 @@ function firstTeammateName(teamName){
 function orderedTeams(){
   const q=searchTerm.trim().toLowerCase();
   const rows=state.teams
-    .map((t,i)=>({team:t,index:i,avg:average(t),played:numericScores(t).length}))
+    .map((t,i)=>({team:t,index:i,avg:average(t)}))
     .filter(r=>!q || r.team.name.toLowerCase().includes(q));
-  if(sortMode==='average'){
-    rows.sort((x,y)=>(y.avg??-Infinity)-(x.avg??-Infinity)||firstTeammateName(x.team.name).localeCompare(firstTeammateName(y.team.name),undefined,{sensitivity:'base'})||x.index-y.index);
-  }else{
-    rows.sort((x,y)=>firstTeammateName(x.team.name).localeCompare(firstTeammateName(y.team.name),undefined,{sensitivity:'base'})||x.team.name.localeCompare(y.team.name,undefined,{sensitivity:'base'})||x.index-y.index);
-  }
+  rows.sort((x,y)=>firstTeammateName(x.team.name).localeCompare(firstTeammateName(y.team.name),undefined,{sensitivity:'base'})||x.team.name.localeCompare(y.team.name,undefined,{sensitivity:'base'})||x.index-y.index);
   return rows;
 }
 function parseScore(raw){const s=String(raw??'').trim();if(!s||s.toLowerCase()==='x')return null;if(!/^\d{1,2}(?:\.\d)?$/.test(s))return undefined;const n=Number(s);if(n<0||n>99)return undefined;return n;}
@@ -171,9 +186,12 @@ function render(){
   let html='<thead><tr><th class="team">Team</th><th class="avg">Avg</th><th class="solo">SOLO AVG</th>';
   weeks.forEach((wi,pos)=>{html+=`<th class="score-col ${pos===0?'current-head':''}">${escapeHtml(state.weeks[wi])}${pos===0?'<br><span style="font-size:.66rem;font-weight:600;opacity:.85">CURRENT</span>':''}</th>`;});
   html+='</tr></thead><tbody>';
-  rows.forEach((r,rank)=>{
-    const avg=average(r.team),solo=soloAverage(r.team),played=r.played;
-    html+=`<tr><td class="team" title="${escapeAttr(r.team.name)}"><span class="rank">${sortMode==='average'?(rank+1)+'.':''}</span>${escapeHtml(r.team.name)}</td><td class="avg">${formatAvg(avg)}<small>${played} played</small></td><td class="solo">${formatAvg(solo)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small></td>`;
+  rows.forEach(r=>{
+    const avg=average(r.team),solo=soloAverage(r.team),played=numericScores(r.team).length;
+    const hcp=handicapAverage(r.team),hcpSeason=Number(r.team.handicapSeason)||null;
+    const hcpLine=hcp==null?'':`<small>HCP ${formatAvg(hcp)}${hcpSeason?' • from '+hcpSeason:''}</small>`;
+    const soloNote=hcp!=null?(handicapRounds(r.team)>3?'80% of HCP':'4 rounds needed'):(played>3?'80% of Avg':'4 rounds needed');
+    html+=`<tr><td class="team" title="${escapeAttr(r.team.name)}">${escapeHtml(r.team.name)}${hcpLine}</td><td class="avg">${formatAvg(avg)}<small>${played} played</small></td><td class="solo">${formatAvg(solo)}<small>${soloNote}</small></td>`;
     weeks.forEach((wi,pos)=>{
       const v=r.team.scores[wi];
       const readOnly=firebaseReady&&!isAdmin?' readonly':'';
@@ -185,10 +203,14 @@ function render(){
   table.innerHTML=html;bindScoreInputs();
   const total=state.teams.length;
   const shown=rows.length;
-  document.getElementById('summary').textContent=`${shown}${shown!==total?' of '+total:''} teams • sorted by ${sortMode==='average'?'average':'first teammate name'} • ${state.weeks.length} weeks • blank = not played`;
-  document.getElementById('sortBtn').textContent=sortMode==='average'?'Alphabetical':'Rank by Avg';
+  document.getElementById('pageTitle').textContent=`Tuesday League ${state.season}`;
+  document.title=`Tuesday League ${state.season}`;
+  document.getElementById('summary').textContent=`${shown}${shown!==total?' of '+total:''} teams • alphabetical by first teammate • ${state.weeks.length} weeks • blank = not played`;
   document.getElementById('addTeamBtn').disabled=firebaseReady&&!isAdmin;
   document.getElementById('addWeekBtn').disabled=firebaseReady&&!isAdmin;
+  const seasonBtn=document.getElementById('newSeasonBtn');
+  seasonBtn.style.display=isAdmin?'':'none';
+  seasonBtn.disabled=!isAdmin;
 }
 function commitScoreInput(inp){
   if(inp.readOnly)return false;
@@ -198,9 +220,11 @@ function commitScoreInput(inp){
   const ti=Number(inp.dataset.team),wi=Number(inp.dataset.week);
   state.teams[ti].scores[wi]=parsed;
   const row=inp.closest('tr'),avgCell=row.querySelector('.avg'),soloCell=row.querySelector('.solo');
-  const a=average(state.teams[ti]),s=soloAverage(state.teams[ti]),played=numericScores(state.teams[ti]).length;
+  const team=state.teams[ti],a=average(team),s=soloAverage(team),played=numericScores(team).length;
+  const h=handicapAverage(team);
+  const soloNote=h!=null?(handicapRounds(team)>3?'80% of HCP':'4 rounds needed'):(played>3?'80% of Avg':'4 rounds needed');
   avgCell.innerHTML=`${formatAvg(a)}<small>${played} played</small>`;
-  soloCell.innerHTML=`${formatAvg(s)}<small>${played>3?'80% of Avg':'4 rounds needed'}</small>`;
+  soloCell.innerHTML=`${formatAvg(s)}<small>${soloNote}</small>`;
   saveState();
   return true;
 }
@@ -248,15 +272,84 @@ function bindScoreInputs(){
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function escapeAttr(s){return escapeHtml(s);}
 
-document.getElementById('sortBtn').addEventListener('click',()=>{sortMode=sortMode==='alpha'?'average':'alpha';render();});
 const teamSearch=document.getElementById('teamSearch');
 teamSearch.addEventListener('input',()=>{searchTerm=teamSearch.value;render();teamSearch.focus();});
-document.getElementById('addWeekBtn').addEventListener('click',()=>{if(firebaseReady&&!isAdmin)return;const n=state.weeks.length+1;state.weeks.push(`Wk ${n}`);state.teams.forEach(t=>t.scores.push(null));sortMode='alpha';saveState();render();setTimeout(()=>{const first=document.querySelector(`.score[data-week="${currentWeekIndex()}"]`);if(first){first.focus();first.select();}},0);});
+document.getElementById('addWeekBtn').addEventListener('click',()=>{if(firebaseReady&&!isAdmin)return;const n=state.weeks.length+1;state.weeks.push(`Wk ${n}`);state.teams.forEach(t=>t.scores.push(null));saveState();render();setTimeout(()=>{const first=document.querySelector(`.score[data-week="${currentWeekIndex()}"]`);if(first){first.focus();first.select();}},0);});
 const dialog=document.getElementById('dialog'),teamName=document.getElementById('teamName');
 function closeDialog(){dialog.classList.remove('show');teamName.value='';}
 document.getElementById('addTeamBtn').addEventListener('click',()=>{if(firebaseReady&&!isAdmin)return;dialog.classList.add('show');setTimeout(()=>teamName.focus(),0);});
 document.getElementById('cancelTeam').addEventListener('click',closeDialog);dialog.addEventListener('click',e=>{if(e.target===dialog)closeDialog();});document.getElementById('saveTeam').addEventListener('click',addTeam);teamName.addEventListener('keydown',e=>{if(e.key==='Enter')addTeam();if(e.key==='Escape')closeDialog();});
 function addTeam(){const name=teamName.value.trim();if(!name||firebaseReady&&!isAdmin)return;state.teams.push({name,scores:Array(state.weeks.length).fill(null)});saveState();closeDialog();render();}
+
+
+const seasonDialog=document.getElementById('seasonDialog');
+const newSeasonYear=document.getElementById('newSeasonYear');
+const seasonDialogText=document.getElementById('seasonDialogText');
+function openSeasonDialog(){
+  if(!isAdmin)return;
+  const next=(Number(state.season)||new Date().getFullYear())+1;
+  newSeasonYear.value=next;
+  seasonDialogText.textContent=`Final ${state.season} averages will become the carried handicap averages. All weekly scores will be cleared and ${next} will start with Week 1.`;
+  seasonDialog.classList.add('show');
+  setTimeout(()=>{newSeasonYear.focus();newSeasonYear.select();},0);
+}
+function closeSeasonDialog(){seasonDialog.classList.remove('show');}
+document.getElementById('newSeasonBtn').addEventListener('click',openSeasonDialog);
+document.getElementById('cancelSeason').addEventListener('click',closeSeasonDialog);
+seasonDialog.addEventListener('click',e=>{if(e.target===seasonDialog)closeSeasonDialog();});
+newSeasonYear.addEventListener('input',()=>{
+  const y=Number(newSeasonYear.value)||((Number(state.season)||2026)+1);
+  seasonDialogText.textContent=`Final ${state.season} averages will become the carried handicap averages. All weekly scores will be cleared and ${y} will start with Week 1.`;
+});
+newSeasonYear.addEventListener('keydown',e=>{if(e.key==='Enter')startNewSeason();if(e.key==='Escape')closeSeasonDialog();});
+document.getElementById('confirmSeason').addEventListener('click',startNewSeason);
+async function startNewSeason(){
+  if(!isAdmin)return;
+  const year=Number(newSeasonYear.value);
+  const oldSeason=Number(state.season)||2026;
+  if(!Number.isInteger(year)||year<=oldSeason||year>2100){
+    newSeasonYear.style.boxShadow='inset 0 0 0 2px #a33b32';
+    return;
+  }
+  newSeasonYear.style.boxShadow='';
+  const ok=window.confirm(`Start the ${year} season?\n\nThis will clear every weekly score from ${oldSeason}. Team names and carried handicap averages will remain. This cannot be undone from the league page.`);
+  if(!ok)return;
+  document.getElementById('confirmSeason').disabled=true;
+  try{
+    await saveQueue;
+    state.teams.forEach(team=>{
+      const played=numericScores(team).length;
+      const finalAvg=average(team);
+      const existingHcp=handicapAverage(team);
+      const existingRounds=handicapRounds(team);
+      // A fully established current-season average (4+ rounds) replaces the old carry.
+      // If fewer than 4 rounds were played, preserve an existing established carry;
+      // otherwise carry the available average but keep SOLO AVG locked until 4+ rounds.
+      if(played>3 && finalAvg!=null){
+        team.handicapAvg=finalAvg;
+        team.handicapRounds=played;
+        team.handicapSeason=oldSeason;
+      }else if(existingHcp!=null && existingRounds>3){
+        // Preserve the already-established handicap when the team did not re-establish it this season.
+      }else if(finalAvg!=null){
+        team.handicapAvg=finalAvg;
+        team.handicapRounds=played;
+        team.handicapSeason=oldSeason;
+      }
+      team.scores=[null];
+    });
+    state.season=year;
+    state.weeks=['Wk 1'];
+    searchTerm='';
+    teamSearch.value='';
+    closeSeasonDialog();
+    await saveState();
+    render();
+    updateNote(`${year} season started. Previous weekly scores were cleared; carried handicap averages were kept.`,true);
+  }finally{
+    document.getElementById('confirmSeason').disabled=false;
+  }
+}
 
 const authBtn=document.getElementById('authBtn');
 const authDialog=document.getElementById('authDialog');
